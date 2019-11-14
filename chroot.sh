@@ -14,7 +14,7 @@ set -e
 
 # install dependencies
 echo "Installing dependencies"
-pacman -S --noconfirm vim git
+pacman -S --noconfirm vim git sudo
 
 # set timezone
 echo "Setting timezone"
@@ -46,7 +46,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 # install NetworkManager to connect to Internet after reboot
 echo "Installing NetworkManager"
-pacman -S networkmanager
+pacman -S --noconfirm networkmanager
 systemctl enable NetworkManager.service
 
 # SDDM
@@ -84,7 +84,6 @@ passwd
 # create a new user with sudo privileges
 echo "Creating user $USER"
 useradd -m "$USER"
-pacman -S sudo
 echo "$USER ALL=(ALL) ALL" > "/etc/sudoers.d/01_$USER"
 echo "Please set the password for user $USER"
 passwd "$USER"
