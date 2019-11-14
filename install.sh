@@ -74,6 +74,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 # copy chroot script
 echo "Copying script to run on new root"
 cp chroot.sh /mnt/chroot.sh
+cp user.sh /mnt/user.sh
 
 # run chroot.sh from new root
 echo "chroot-ing to new root"
@@ -81,7 +82,7 @@ arch-chroot /mnt ./chroot.sh "$USER"
 
 # clean up
 echo "Cleaning up"
-rm /mnt/chroot.sh
+rm /mnt/chroot.sh /mnt/user.sh
 
 # reboot
 echo "All done! Your system will now reboot."

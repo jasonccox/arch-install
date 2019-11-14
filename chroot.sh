@@ -75,12 +75,8 @@ echo "Please set the password for user $USER"
 passwd "$USER"
 
 # run setup as new user
-echo "Running additional setup as $USER"
-su ./user.sh "$USER"
-
-# AUR Packages
-echo "Installing additional software from AUR"
-yay -S --noconfirm tutanota-desktop-linux
+echo "Running additional setup as $USER. You may be promped to enter the password for $USER for some of the commands."
+su "$USER" ./user.sh
 
 # Keyboard
 echo "Setting X11 keyboard layouts"
