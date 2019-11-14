@@ -9,6 +9,9 @@ if [ -z "$1" ]; then
 fi
 USER="$1"
 
+# exit on errors
+set -e
+
 # set timezone
 echo "Setting timezone"
 ln -sf /usr/share/zoneinfo/America/Denver /etc/localtime

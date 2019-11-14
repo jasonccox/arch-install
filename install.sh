@@ -28,6 +28,9 @@ if ! ping -c 5 archlinux.org; then
     exit 3
 fi
 
+# exit on errors
+set -e
+
 # update system clock
 echo "Updating system clock"
 timedatectl set-ntp true
