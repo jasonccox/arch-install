@@ -71,9 +71,17 @@ pacstrap /mnt base linux linux-firmware
 echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
+# copy chroot script
+echo "Copying script to run on new root"
+cp chroot.sh /mnt/chroot.sh
+
 # run chroot.sh from new root
 echo "chroot-ing to new root"
 arch-chroot /mnt ./chroot.sh "$USER"
+
+# clean up
+echo "Cleaning up"
+rm /mnt/chroot.sh
 
 # reboot
 echo "All done! Your system will now reboot."
