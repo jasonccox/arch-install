@@ -80,11 +80,15 @@ cp user.sh /mnt/user.sh
 echo "chroot-ing to new root"
 arch-chroot /mnt ./chroot.sh "$USER"
 
+# copy first-boot.sh
+echo "Copying first-boot.sh to $USER's home directory"
+cp first-boot.sh /mnt/home/$USER/first-boot.sh
+
 # clean up
 echo "Cleaning up"
 rm /mnt/chroot.sh /mnt/user.sh
 
 # reboot
-echo "All done! Your system will now reboot."
+echo "All done! Your system will now reboot. After rebooting, run the first-boot.sh script in $USER's home directory."
 read -p "Press enter to continue..."
 reboot

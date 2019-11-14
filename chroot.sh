@@ -78,8 +78,4 @@ passwd "$USER"
 echo "Running additional setup as $USER. You may be promped to enter the password for $USER for some of the commands."
 su "$USER" ./user.sh
 
-# Keyboard
-echo "Setting X11 keyboard layouts"
-localectl --no-convert set-x11-keymap us,us microsoft4000, colemak, "caps:escape_shifted_capslock compose:ralt"
-
 echo "Exiting chroot"
