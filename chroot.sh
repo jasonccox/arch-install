@@ -60,6 +60,7 @@ pacman -S --noconfirm phonon-qt5-vlc plasma-meta plasma-nm sddm-kcm kde-gtk-conf
 
 # Other Packages
 echo "Installing additional software"
+pacman -Rs --noconfirm vim
 pacman -S --noconfirm base-devel konsole firefox gvim zip unzip openssh code hunspell-en_US hunspell-es_any nextcloud-client yakuake pulseaudio-alsa pulseaudio-bluetooth
 
 # Yay (AUR helper)
