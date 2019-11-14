@@ -23,7 +23,7 @@ hwclock --systohc
 
 # set locale
 echo "Setting locale"
-vim +/#en_US\.UFT-8 -c "normal! x" -c wq /etc/locale.gen
+vim +/#en_US\.UTF-8 -c "normal! x" -c wq /etc/locale.gen
 locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
