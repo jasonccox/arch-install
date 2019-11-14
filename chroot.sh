@@ -63,17 +63,6 @@ echo "Installing additional software"
 pacman -Rs --noconfirm vim
 pacman -S --noconfirm base-devel konsole firefox gvim zip unzip openssh code hunspell-en_US hunspell-es_any nextcloud-client yakuake pulseaudio-alsa pulseaudio-bluetooth
 
-# Yay (AUR helper)
-cd /tmp
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -si
-cd ..
-rm -rf yay
-
-# AUR Packages
-yay -S --noconfirm tutanota-desktop-linux
-
 # Keyboard
 echo "Setting X11 keyboard layouts"
 localectl --no-convert set-x11-keymap us,us microsoft4000, colemak, caps:escape_shifted_capslock compose:ralt
@@ -88,5 +77,13 @@ useradd -m "$USER"
 echo "$USER ALL=(ALL) ALL" > "/etc/sudoers.d/01_$USER"
 echo "Please set the password for user $USER"
 passwd "$USER"
+
+# run setup as new user
+echo "Running additional setup as $USER"
+su ./user.sh "$USER"
+
+# AUR Packages
+echo "Installing additional software from AUR"
+yay -S --noconfirm tutanota-desktop-linux
 
 echo "Exiting chroot"
