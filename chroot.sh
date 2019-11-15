@@ -3,11 +3,14 @@
 # Script run on the new root as the root user.
 
 # variables
-if [ -z "$1" ]; then
-    echo "USAGE: ./chroot.sh [default username]"
+if [ $# -ne 2 ] && [ $# -ne 4 ]; then
+    echo "USAGE: ./chroot.sh BOOT_MOUNT USERNAME [encrypted_device root_device]"
     exit 1
 fi
-USER="$1"
+BOOTMNT="$1"
+USER="$2"
+ENCDEV="$3"
+ROOTDEV="$4"
 
 # exit on errors
 set -e
@@ -38,10 +41,19 @@ echo "127.0.0.1        localhost" >> /etc/hosts
 echo "::1              localhost" >> /etc/hosts
 echo "127.0.1.1        jason-desktop.localdomain" >> /etc/hosts
 
+# configure mkinitcpio (encrypted only)
+if [ ! -z "$ENCDEV" ]; then
+    vim +/^HOOKS= -c "normal! ccHOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)" -c wq /etc/mkinitcpio.conf
+    mkinitcpio -P
+fi
+
 # set up bootloader
 echo "Installing bootloader"
 pacman -S --noconfirm grub efibootmgr intel-ucode
-grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+grub-install --target=x86_64-efi --efi-directory="$BOOTMNT" --bootloader-id=GRUB
+if [ ! -z "$ENCDEV" ]; then
+    vim +/^GRUB_CMDLINE_LINUX= -c 'normal! $icryptdevice=UUID=' -c "normal! r !lsblk -dno UUID /dev/$ENCDEV" -c 'normal! $i:cryptlvm' -c "normal! a root=$ROOTDEV" -c wq /etc/default/grub
+fi
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # install NetworkManager to connect to Internet after reboot
@@ -60,8 +72,13 @@ pacman -S --noconfirm phonon-qt5-vlc plasma-meta plasma-nm sddm-kcm kde-gtk-conf
 
 # Other Packages
 echo "Installing additional software"
+if [ !-z "$ENCDEV" ]; then
+    FSPKGS="dosfstools e2fsprogs"
+else
+    FSPKGS="dosfstools e2fsprogs lvm2"
+fi
 pacman -Rs --noconfirm vim
-pacman -S --noconfirm base-devel konsole firefox gvim zip unzip openssh code hunspell-en_US hunspell-es_any nextcloud-client yakuake pulseaudio-alsa pulseaudio-bluetooth
+pacman -S --noconfirm base-devel $FSPKGS konsole firefox gvim zip unzip openssh code hunspell-en_US hunspell-es_any nextcloud-client yakuake pulseaudio-alsa pulseaudio-bluetooth
 
 # set the root password
 echo "Please set the root password"
