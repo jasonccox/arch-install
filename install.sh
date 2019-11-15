@@ -67,29 +67,29 @@ parted /dev/"$DEV" set 1 esp on
 echo "Formatting partitions"
 mkfs.fat -F32 /dev/"$DEV"1
 if [ "$ENCRYPTED" = "true" ]; then
+    mkfs.ext4 /dev/vols/root
+    mkswap /dev/vols/swap
+    mkfs.ext4 /dev/vols/home
+else
     mkfs.ext4 /dev/"$DEV"2
     mkswap /dev/"$DEV"3
     mkfs.ext4 /dev/"$DEV"4
-else
-    mkfs.ext4 /dev/vols/root
-    mkswap /dev/vols/swap
-    mkfs.extf /dev/vols/home
 fi
 
 # mount partitions
 echo "Mounting partitions"
 if [ "$ENCRYPTED" = "true" ]; then
-    mount /dev/"$DEV"2 /mnt
-    mkdir /mnt/efi /mnt/home
-    mount /dev/"$DEV"1 /mnt/efi
-    mount /dev/"$DEV"4 /mnt/home
-    swapon /dev/"$DEV"3
-else
     mount /dev/vols/root /mnt
     mkdir /mnt/boot /mnt/home
     mount /dev/"$DEV"1 /mnt/boot
     mount /dev/vols/home /mnt/home
     swapon /dev/vols/swap
+else
+    mount /dev/"$DEV"2 /mnt
+    mkdir /mnt/efi /mnt/home
+    mount /dev/"$DEV"1 /mnt/efi
+    mount /dev/"$DEV"4 /mnt/home
+    swapon /dev/"$DEV"3
 fi
 
 # adjust mirrors

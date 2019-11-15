@@ -72,7 +72,7 @@ pacman -S --noconfirm phonon-qt5-vlc plasma-meta plasma-nm sddm-kcm kde-gtk-conf
 
 # Other Packages
 echo "Installing additional software"
-if [ !-z "$ENCDEV" ]; then
+if [ -z "$ENCDEV" ]; then
     FSPKGS="dosfstools e2fsprogs"
 else
     FSPKGS="dosfstools e2fsprogs lvm2"
