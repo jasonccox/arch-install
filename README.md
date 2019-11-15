@@ -19,11 +19,11 @@ This is a set of scripts that I use to easily install and setup Arch. I highly r
 
 You probably don't want your Arch install to look exactly like mine. The script already forces you to customize two key parts of the system: the device to which you will install Arch and the username of the non-root user to be created. However, you can customize anything else by editing the scripts. Here are some things you're likely to want to change:
 
-- partition layout (the `create partitions`, `format partitions`, and `mount partitions` sections of `install.sh`) - I setup an EFI partition, a swap partition, a root partition, and a separate partition for `/home`. Of special note is the fact that I made my swap partition about 8GiB to match the RAM in my computer so that hibernate will work. 
+- partition layout (the *create partitions*, *format partitions*, and *mount partitions* sections of `install.sh`) - I setup an EFI partition, a swap partition, a root partition, and a separate partition for `/home`. Of special note is the fact that I made my swap partition about 8GiB to match the RAM in my computer so that hibernate will work. 
 - mirror list (the `mirrorlist` file) - I use all the U.S. mirrors. If you're not in the U.S., you probably want to do something else. You can generate your own mirrorlist file on the [Arch Linux website](https://www.archlinux.org/mirrorlist/). 
-- timezone (the `set timezone` section of `chroot.sh`)
-- locale (the `set locale` section of `chroot.sh`)
-- hostname (the `configure network` section of `chroot.sh`)
-- keyboard layout (the `save keyboard layout` section of `chroot` and the `Keyboard` section of `first-boot.sh`) - I use the Colemak layout. If you use something else, you'll want to change this or you might have a tough time typing :)
-- microcode (the `set up bootloader` section of `chroot.sh`) - Change `intel-ucode` to `amd-ucode` if you have an AMD processor.
-- installed software (the `NetworkManager`, `SDDM`, `KDE Plasma`, `Other Packages`, and `AUR Packages` sections of `chroot.sh`)
+- timezone (the *set timezone* section of `chroot.sh`)
+- locale (the *set locale* section of `chroot.sh`)
+- hostname (the *configure network* section of `chroot.sh`)
+- keyboard layout (the *save keyboard layout* section of `chroot.sh` and the *Keyboard* section of `first-boot.sh`) - I use the Colemak layout. If you use something else, you'll want to change this or you might have a tough time typing :)
+- microcode (the *set up bootloader* section of `chroot.sh`) - Change `intel-ucode` to `amd-ucode` if you have an AMD processor.
+- installed software (the *NetworkManager*, *SDDM*, *KDE Plasma*, *Other Packages*, and *AUR Packages* sections of `chroot.sh`)
