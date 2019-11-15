@@ -12,7 +12,7 @@ This is a set of scripts that I use to easily install and setup Arch. I highly r
 6. Run the script: `./install.sh [device name] [default username]`
     - `[device name]` is the name of the disk to which Arch should be installed, such as `sda`. (Use `lsblk` or `fdisk -l` to see available disks.)
     - `[default username]` is the username of the non-root user to be created.
-7. After the reboot, run the `./first-boot.sh` from the new user's home directory.
+7. After the reboot, run the `./first-boot.sh` from the new user's home directory. (In the case of using KDE Plasma with an alternate keyboard layout, I suggest doing this from another tty before you ever log into Plasma for the first time. If you don't, you'll have to manually set your keyboard layout in the System Settings application.)
 8. Enjoy using Arch!
 
 ## Customization
