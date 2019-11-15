@@ -44,11 +44,6 @@ timedatectl set-ntp true
 echo "Creating partitions on /dev/$DEV"
 parted /dev/"$DEV" mklabel gpt
 if [ "$ENCRYPTED" = "true" ]; then
-    parted /dev/"$DEV" mkpart primary fat32 1MiB 261MiB
-    parted /dev/"$DEV" mkpart primary ext4 261MiB 33029MiB
-    parted /dev/"$DEV" mkpart primary ext4 33029MiB 41221MiB
-    parted /dev/"$DEV" mkpart primary ext4 41221MiB 100%
-else
     parted /dev/"$DEV" mkpart primary fat32 1MiB 513MiB
     parted /dev/"$DEV" mkpart primary ext4 513MiB 100%
     echo "Please choose a password for you drive encryption"
@@ -60,6 +55,11 @@ else
     lvcreate -L 32g vols -n root
     lvcreate -L 8g vols -n swap
     lvcreate -l 100%FREE vols -n home
+else
+    parted /dev/"$DEV" mkpart primary fat32 1MiB 261MiB
+    parted /dev/"$DEV" mkpart primary ext4 261MiB 33029MiB
+    parted /dev/"$DEV" mkpart primary ext4 33029MiB 41221MiB
+    parted /dev/"$DEV" mkpart primary ext4 41221MiB 100%
 fi
 parted /dev/"$DEV" set 1 esp on
 
