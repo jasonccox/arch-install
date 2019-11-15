@@ -43,13 +43,14 @@ echo "127.0.1.1        jason-desktop.localdomain" >> /etc/hosts
 
 # configure mkinitcpio (encrypted only)
 if [ ! -z "$ENCDEV" ]; then
+    pacman -S --no-confirm lvm2 # required for lvm2 mkinitcpio hook
     vim +/^HOOKS= -c "normal! ccHOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)" -c wq /etc/mkinitcpio.conf
     mkinitcpio -P
 fi
 
 # set up bootloader
 echo "Installing bootloader"
-pacman -S --noconfirm grub efibootmgr intel-ucode
+pacman -S --noconfirm grub efibootmgr intel-ucode $FSPKGS
 grub-install --target=x86_64-efi --efi-directory="$BOOTMNT" --bootloader-id=GRUB
 if [ ! -z "$ENCDEV" ]; then
     vim +/^GRUB_CMDLINE_LINUX= -c 'normal! $' -c "normal! icryptdevice=UUID=$(lsblk -dno UUID /dev/$ENCDEV):cryptlvm root=$ROOTDEV" -c wq /etc/default/grub
@@ -72,13 +73,8 @@ pacman -S --noconfirm phonon-qt5-vlc plasma-meta plasma-nm sddm-kcm kde-gtk-conf
 
 # Other Packages
 echo "Installing additional software"
-if [ -z "$ENCDEV" ]; then
-    FSPKGS="dosfstools e2fsprogs"
-else
-    FSPKGS="dosfstools e2fsprogs lvm2"
-fi
 pacman -Rs --noconfirm vim
-pacman -S --noconfirm base-devel $FSPKGS konsole firefox gvim zip unzip openssh code hunspell-en_US hunspell-es_any nextcloud-client yakuake pulseaudio-alsa pulseaudio-bluetooth
+pacman -S --noconfirm base-devel konsole firefox gvim zip unzip openssh code hunspell-en_US hunspell-es_any nextcloud-client yakuake pulseaudio-alsa pulseaudio-bluetooth dosfstools e2fsprogs
 
 # set the root password
 echo "Please set the root password"
