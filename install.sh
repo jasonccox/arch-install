@@ -15,7 +15,7 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 fi
 DEV="$1"
 USER="$2"
-if [ "$1" = "-e" ]; then
+if [ "$3" = "-e" ]; then
     ENCRYPTED="true"
 fi
 
