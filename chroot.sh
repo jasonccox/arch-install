@@ -52,7 +52,7 @@ echo "Installing bootloader"
 pacman -S --noconfirm grub efibootmgr intel-ucode
 grub-install --target=x86_64-efi --efi-directory="$BOOTMNT" --bootloader-id=GRUB
 if [ ! -z "$ENCDEV" ]; then
-    vim +/^GRUB_CMDLINE_LINUX= -c 'normal! $icryptdevice=UUID=' -c "normal! r !lsblk -dno UUID /dev/$ENCDEV" -c 'normal! $i:cryptlvm' -c "normal! a root=$ROOTDEV" -c wq /etc/default/grub
+    vim +/^GRUB_CMDLINE_LINUX= -c 'normal! $' -c "normal! icryptdevice=UUID=$(lsblk -dno UUID /dev/$ENCDEV):cryptlvm root=$ROOTDEV" -c wq /etc/default/grub
 fi
 grub-mkconfig -o /boot/grub/grub.cfg
 
