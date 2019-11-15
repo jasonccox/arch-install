@@ -44,24 +44,31 @@ timedatectl set-ntp true
 echo "Creating partitions on /dev/$DEV"
 parted /dev/"$DEV" mklabel gpt
 if [ "$ENCRYPTED" = "true" ]; then
-    parted /dev/"$DEV" mkpart primary fat32 1MiB 513MiB
-    parted /dev/"$DEV" mkpart primary ext4 513MiB 100%
-    echo "Please choose a password for you drive encryption"
+    parted /dev/"$DEV" mkpart primary fat32 1MiB 513MiB # /boot
+    parted /dev/"$DEV" mkpart primary ext4 513MiB 100% # encrypted with LUKS
+
+    # encrypt second partition
+    echo "Encrypting /dev/$DEV"2
     cryptsetup luksFormat /dev/"$DEV"2
-    echo "Please enter the drive encryption password"
+
+    # open encrypted partition
+    echo "Password successfully set"
+    echo "Please enter the drive encryption password to open it"
     cryptsetup open /dev/"$DEV"2 cryptlvm
+
+    # create LVM volumes on encrypted partition
     pvcreate /dev/mapper/cryptlvm
     vgcreate vols /dev/mapper/cryptlvm
     lvcreate -L 32g vols -n root
     lvcreate -L 8g vols -n swap
     lvcreate -l 100%FREE vols -n home
 else
-    parted /dev/"$DEV" mkpart primary fat32 1MiB 261MiB
-    parted /dev/"$DEV" mkpart primary ext4 261MiB 33029MiB
-    parted /dev/"$DEV" mkpart primary ext4 33029MiB 41221MiB
-    parted /dev/"$DEV" mkpart primary ext4 41221MiB 100%
+    parted /dev/"$DEV" mkpart primary fat32 1MiB 261MiB # /efi
+    parted /dev/"$DEV" mkpart primary ext4 261MiB 33029MiB # /
+    parted /dev/"$DEV" mkpart primary ext4 33029MiB 41221MiB # swap
+    parted /dev/"$DEV" mkpart primary ext4 41221MiB 100% # /home
 fi
-parted /dev/"$DEV" set 1 esp on
+parted /dev/"$DEV" set 1 esp on # sets partition 1 as EFI partition
 
 # format partitions
 echo "Formatting partitions"
@@ -71,9 +78,9 @@ if [ "$ENCRYPTED" = "true" ]; then
     mkswap /dev/vols/swap
     mkfs.ext4 /dev/vols/home
 else
-    mkfs.ext4 /dev/"$DEV"2
+    mkfs.ext4 /dev/"$DEV"2 # /
     mkswap /dev/"$DEV"3
-    mkfs.ext4 /dev/"$DEV"4
+    mkfs.ext4 /dev/"$DEV"4 # /home
 fi
 
 # mount partitions
@@ -104,8 +111,8 @@ pacstrap /mnt base linux linux-firmware
 echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# copy chroot script
-echo "Copying script to run on new root"
+# copy chroot and user scripts
+echo "Copying scripts to run on new root"
 cp chroot.sh /mnt/chroot.sh
 cp user.sh /mnt/user.sh
 
