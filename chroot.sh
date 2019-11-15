@@ -43,9 +43,8 @@ echo "127.0.1.1        jason-desktop.localdomain" >> /etc/hosts
 
 # configure mkinitcpio (encrypted only)
 if [ ! -z "$ENCDEV" ]; then
-    pacman -S --noconfirm lvm2 # required for lvm2 mkinitcpio hook
     vim +/^HOOKS= -c "normal! ccHOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)" -c wq /etc/mkinitcpio.conf
-    mkinitcpio -P
+    pacman -S --noconfirm lvm2 # required for lvm2 mkinitcpio hook and runs mkinitcpio after install
 fi
 
 # set up bootloader
