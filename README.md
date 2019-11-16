@@ -14,6 +14,8 @@ This is a set of scripts that I use to easily install and setup Arch. I highly r
     - `USERNAME` is the username of the non-root user to be created.
     - Options:
         - `-e` encrypts the whole disk (except for the `/boot` partition)
+        - `-r SIZE` sets the size of the root partition to `SIZE` GiB
+        - `-s SIZE` sets the size of the swap partition to `SIZE` GiB
 7. After the reboot, run the `./first-boot.sh` from the new user's home directory. (In the case of using KDE Plasma with an alternate keyboard layout, I suggest doing this from another tty before you ever log into Plasma for the first time. If you don't, you'll have to manually set your keyboard layout in the System Settings application.)
 8. Enjoy using Arch!
 

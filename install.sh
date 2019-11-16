@@ -6,18 +6,52 @@
 #   - be booted in UEFI mose
 #   - be connected to the internet
 
-# variables
-if [ -z "$1" ] || [ -z "$2" ]; then
+print_usage () {
     echo "USAGE: ./install.sh DEVICE USERNAME [options]"
     echo "OPTIONS:"
     echo "  -e        encrypt the whole disk (except for the /boot partition)"
+    echo "  -r SIZE   set the size of the root partition to SIZE GiB"
+    echo "  -s SIZE   set the size of the swap partition to SIZE GiB"
+}
+
+# set default variable values
+ENCRYPTED="false"
+ROOT_SIZE=32
+SWAP_SIZE=8
+
+# read command line arguments into variables
+if [ -z "$1" ] || [ -z "$2" ]; then
+    print_usage
     exit 1
 fi
+
 DEV="$1"
 USER="$2"
-if [ "$3" = "-e" ]; then
-    ENCRYPTED="true"
-fi
+
+while [ ! -z "$3" ]; do
+    case "$3" in
+        -e )    ENCRYPTED="true"
+                ;;
+        -r )    shift
+                if [ -z "$3" ]; then
+                    print_usage
+                    exit 1
+                fi
+                ROOT_SIZE="$3"
+                ;;
+        -s )    shift
+                if [ -z "$3" ]; then
+                    print_usage
+                    exit 1
+                fi
+                SWAP_SIZE="$3"
+                ;;
+        * )     print_usage
+                exit 1
+    esac
+
+    shift
+done
 
 # make sure you're booted in UEFI mode
 echo "Verifying UEFI mode"
@@ -60,13 +94,15 @@ if [ "$ENCRYPTED" = "true" ]; then
     # create LVM volumes on encrypted partition
     pvcreate /dev/mapper/cryptlvm
     vgcreate vols /dev/mapper/cryptlvm
-    lvcreate -L 32g vols -n root
-    lvcreate -L 8g vols -n swap
+    lvcreate -L "$ROOT_SIZE"g vols -n root
+    lvcreate -L "$SWAP_SIZE"g vols -n swap
     lvcreate -l 100%FREE vols -n home
 else
-    parted "$DEV" mkpart primary ext4 513MiB 33281MiB # /
-    parted "$DEV" mkpart primary ext4 33281MiB 41473MiB # swap
-    parted "$DEV" mkpart primary ext4 41473MiB 100% # /home
+    let ROOT_END=513+1024*"$ROOT_SIZE"
+    let SWAP_END="$ROOT_END"+1024*"$SWAP_END"
+    parted "$DEV" mkpart primary ext4 513MiB "$ROOT_END"MiB # /
+    parted "$DEV" mkpart primary ext4 "$ROOT_END"MiB "$SWAP_END"MiB # swap
+    parted "$DEV" mkpart primary ext4 "$SWAP_END"MiB 100% # /home
 fi
 
 # format partitions
