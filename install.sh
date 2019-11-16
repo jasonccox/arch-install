@@ -99,7 +99,7 @@ if [ "$ENCRYPTED" = "true" ]; then
     lvcreate -l 100%FREE vols -n home
 else
     let ROOT_END=513+1024*"$ROOT_SIZE"
-    let SWAP_END="$ROOT_END"+1024*"$SWAP_END"
+    let SWAP_END="$ROOT_END"+1024*"$SWAP_SIZE"
     parted "$DEV" mkpart primary ext4 513MiB "$ROOT_END"MiB # /
     parted "$DEV" mkpart primary ext4 "$ROOT_END"MiB "$SWAP_END"MiB # swap
     parted "$DEV" mkpart primary ext4 "$SWAP_END"MiB 100% # /home
