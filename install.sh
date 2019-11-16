@@ -8,7 +8,7 @@
 
 # variables
 if [ -z "$1" ] || [ -z "$2" ]; then
-    echo "USAGE: ./install.sh DEV_NAME USERNAME [options]"
+    echo "USAGE: ./install.sh DEVICE USERNAME [options]"
     echo "OPTIONS:"
     echo "  -e        encrypt the whole disk (except for the /boot partition)"
     exit 1
@@ -41,20 +41,20 @@ echo "Updating system clock"
 timedatectl set-ntp true
 
 # create partitions
-echo "Creating partitions on /dev/$DEV"
-parted /dev/"$DEV" mklabel gpt
+echo "Creating partitions on $DEV"
+parted "$DEV" mklabel gpt
 if [ "$ENCRYPTED" = "true" ]; then
-    parted /dev/"$DEV" mkpart primary fat32 1MiB 513MiB # /boot
-    parted /dev/"$DEV" mkpart primary ext4 513MiB 100% # encrypted with LUKS
+    parted "$DEV" mkpart primary fat32 1MiB 513MiB # /boot
+    parted "$DEV" mkpart primary ext4 513MiB 100% # encrypted with LUKS
 
     # encrypt second partition
-    echo "Encrypting /dev/$DEV"2
-    cryptsetup luksFormat /dev/"$DEV"2
+    echo "Encrypting $DEV"2
+    cryptsetup luksFormat "$DEV"2
 
     # open encrypted partition
     echo "Password successfully set"
     echo "Please enter the drive encryption password to open it"
-    cryptsetup open /dev/"$DEV"2 cryptlvm
+    cryptsetup open "$DEV"2 cryptlvm
 
     # create LVM volumes on encrypted partition
     pvcreate /dev/mapper/cryptlvm
@@ -63,24 +63,24 @@ if [ "$ENCRYPTED" = "true" ]; then
     lvcreate -L 8g vols -n swap
     lvcreate -l 100%FREE vols -n home
 else
-    parted /dev/"$DEV" mkpart primary fat32 1MiB 261MiB # /efi
-    parted /dev/"$DEV" mkpart primary ext4 261MiB 33029MiB # /
-    parted /dev/"$DEV" mkpart primary ext4 33029MiB 41221MiB # swap
-    parted /dev/"$DEV" mkpart primary ext4 41221MiB 100% # /home
+    parted "$DEV" mkpart primary fat32 1MiB 261MiB # /efi
+    parted "$DEV" mkpart primary ext4 261MiB 33029MiB # /
+    parted "$DEV" mkpart primary ext4 33029MiB 41221MiB # swap
+    parted "$DEV" mkpart primary ext4 41221MiB 100% # /home
 fi
-parted /dev/"$DEV" set 1 esp on # sets partition 1 as EFI partition
+parted "$DEV" set 1 esp on # sets partition 1 as EFI partition
 
 # format partitions
 echo "Formatting partitions"
-mkfs.fat -F32 /dev/"$DEV"1
+mkfs.fat -F32 "$DEV"1
 if [ "$ENCRYPTED" = "true" ]; then
     mkfs.ext4 /dev/vols/root
     mkswap /dev/vols/swap
     mkfs.ext4 /dev/vols/home
 else
-    mkfs.ext4 /dev/"$DEV"2 # /
-    mkswap /dev/"$DEV"3
-    mkfs.ext4 /dev/"$DEV"4 # /home
+    mkfs.ext4 "$DEV"2 # /
+    mkswap "$DEV"3
+    mkfs.ext4 "$DEV"4 # /home
 fi
 
 # mount partitions
@@ -88,15 +88,15 @@ echo "Mounting partitions"
 if [ "$ENCRYPTED" = "true" ]; then
     mount /dev/vols/root /mnt
     mkdir /mnt/boot /mnt/home
-    mount /dev/"$DEV"1 /mnt/boot
+    mount "$DEV"1 /mnt/boot
     mount /dev/vols/home /mnt/home
     swapon /dev/vols/swap
 else
-    mount /dev/"$DEV"2 /mnt
+    mount "$DEV"2 /mnt
     mkdir /mnt/efi /mnt/home
-    mount /dev/"$DEV"1 /mnt/efi
-    mount /dev/"$DEV"4 /mnt/home
-    swapon /dev/"$DEV"3
+    mount "$DEV"1 /mnt/efi
+    mount "$DEV"4 /mnt/home
+    swapon "$DEV"3
 fi
 
 # adjust mirrors
@@ -119,7 +119,7 @@ cp user.sh /mnt/user.sh
 # run chroot.sh from new root
 echo "chroot-ing to new root"
 if [ "$ENCRYPTED" = "true" ]; then
-    arch-chroot /mnt ./chroot.sh /boot "$USER" /dev/"$DEV"2 /dev/vols/root
+    arch-chroot /mnt ./chroot.sh /boot "$USER" "$DEV"2 /dev/vols/root
 else
     arch-chroot /mnt ./chroot.sh /efi "$USER"
 fi
