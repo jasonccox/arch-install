@@ -10,8 +10,8 @@ print_usage () {
     echo "USAGE: ./install.sh DEVICE USERNAME [options]"
     echo "OPTIONS:"
     echo "  -e        encrypt the whole disk (except for the /boot partition)"
-    echo "  -r SIZE   set the size of the root partition to SIZE GiB"
-    echo "  -s SIZE   set the size of the swap partition to SIZE GiB"
+    echo "  -r SIZE   set the size of the root partition to SIZE GiB (default 32)"
+    echo "  -s SIZE   set the size of the swap partition to SIZE GiB (default 8)"
 }
 
 # set default variable values
