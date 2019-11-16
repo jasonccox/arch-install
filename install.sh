@@ -43,8 +43,9 @@ timedatectl set-ntp true
 # create partitions
 echo "Creating partitions on $DEV"
 parted "$DEV" mklabel gpt
+parted "$DEV" mkpart primary fat32 1MiB 513MiB # /efi or /boot
+parted "$DEV" set 1 esp on # sets partition 1 as EFI partition
 if [ "$ENCRYPTED" = "true" ]; then
-    parted "$DEV" mkpart primary fat32 1MiB 513MiB # /boot
     parted "$DEV" mkpart primary ext4 513MiB 100% # encrypted with LUKS
 
     # encrypt second partition
@@ -63,12 +64,10 @@ if [ "$ENCRYPTED" = "true" ]; then
     lvcreate -L 8g vols -n swap
     lvcreate -l 100%FREE vols -n home
 else
-    parted "$DEV" mkpart primary fat32 1MiB 261MiB # /efi
-    parted "$DEV" mkpart primary ext4 261MiB 33029MiB # /
-    parted "$DEV" mkpart primary ext4 33029MiB 41221MiB # swap
-    parted "$DEV" mkpart primary ext4 41221MiB 100% # /home
+    parted "$DEV" mkpart primary ext4 513MiB 33281MiB # /
+    parted "$DEV" mkpart primary ext4 33281MiB 41473MiB # swap
+    parted "$DEV" mkpart primary ext4 41473MiB 100% # /home
 fi
-parted "$DEV" set 1 esp on # sets partition 1 as EFI partition
 
 # format partitions
 echo "Formatting partitions"
