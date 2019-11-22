@@ -3,14 +3,15 @@
 # Script run on the new root as the root user.
 
 # variables
-if [ $# -ne 2 ] && [ $# -ne 4 ]; then
-    echo "USAGE: ./chroot.sh BOOT_MOUNT USERNAME [encrypted_device root_device]"
+if [ $# -ne 3 ] && [ $# -ne 5 ]; then
+    echo "USAGE: ./chroot.sh BOOT_MOUNT USERNAME HOSTNAME [encrypted_device root_device]"
     exit 1
 fi
 BOOTMNT="$1"
 USER="$2"
-ENCDEV="$3"
-ROOTDEV="$4"
+HOSTNAME="$3"
+ENCDEV="$4"
+ROOTDEV="$5"
 
 # exit on errors
 set -e
@@ -36,10 +37,10 @@ echo "KEYMAP=colemak" > /etc/vconsole.conf
 
 # configure network
 echo "Configuring network"
-echo "jason-desktop" > /etc/hostname
+echo "$HOSTNAME" > /etc/hostname
 echo "127.0.0.1        localhost" >> /etc/hosts
 echo "::1              localhost" >> /etc/hosts
-echo "127.0.1.1        jason-desktop.localdomain" >> /etc/hosts
+echo "127.0.1.1        $HOSTNAME.localdomain" >> /etc/hosts
 
 # configure mkinitcpio (encrypted only)
 if [ ! -z "$ENCDEV" ]; then

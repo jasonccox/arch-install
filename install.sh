@@ -7,7 +7,7 @@
 #   - be connected to the internet
 
 print_usage () {
-    echo "USAGE: ./install.sh DEVICE USERNAME [options]"
+    echo "USAGE: ./install.sh DEVICE USERNAME HOSTNAME [options]"
     echo "OPTIONS:"
     echo "  -e        encrypt the whole disk (except for the /boot partition)"
     echo "  -r SIZE   set the size of the root partition to SIZE GiB (default 32)"
@@ -20,31 +20,32 @@ ROOT_SIZE=32
 SWAP_SIZE=8
 
 # read command line arguments into variables
-if [ -z "$1" ] || [ -z "$2" ]; then
+if [ $# -lt 3 ]; then
     print_usage
     exit 1
 fi
 
 DEV="$1"
 USER="$2"
+HOSTNAME="$3"
 
-while [ ! -z "$3" ]; do
-    case "$3" in
+while [ ! -z "$4" ]; do
+    case "$4" in
         -e )    ENCRYPTED="true"
                 ;;
         -r )    shift
-                if [ -z "$3" ]; then
+                if [ -z "$4" ]; then
                     print_usage
                     exit 1
                 fi
-                ROOT_SIZE="$3"
+                ROOT_SIZE="$4"
                 ;;
         -s )    shift
-                if [ -z "$3" ]; then
+                if [ -z "$4" ]; then
                     print_usage
                     exit 1
                 fi
-                SWAP_SIZE="$3"
+                SWAP_SIZE="$4"
                 ;;
         * )     print_usage
                 exit 1
@@ -154,9 +155,9 @@ cp user.sh /mnt/user.sh
 # run chroot.sh from new root
 echo "chroot-ing to new root"
 if [ "$ENCRYPTED" = "true" ]; then
-    arch-chroot /mnt ./chroot.sh /boot "$USER" "$DEV"2 /dev/vols/root
+    arch-chroot /mnt ./chroot.sh /boot "$USER" "$HOSTNAME" "$DEV"2 /dev/vols/root
 else
-    arch-chroot /mnt ./chroot.sh /efi "$USER"
+    arch-chroot /mnt ./chroot.sh /efi "$USER" "$HOSTNAME"
 fi
 
 # copy first-boot.sh

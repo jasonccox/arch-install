@@ -9,9 +9,10 @@ This is a set of scripts that I use to easily install and setup Arch. I highly r
 3. Install git: `pacman -Sy git`
 4. Clone this repo: `git clone https://gitlab.com/jasonccox/arch-install.git`
 5. Change directory to the cloned repo: `cd arch-install`
-6. Run the script: `USAGE: ./install.sh DEVICE USERNAME [options]`
+6. Run the script: `USAGE: ./install.sh DEVICE USERNAME HOSTNAME [options]`
     - `DEVICE` is the device to which Arch should be installed, such as `/dev/sda`. (Use `lsblk` or `fdisk -l` to see available disks.)
     - `USERNAME` is the username of the non-root user to be created.
+    - `HOSTNAME` is the hostname of the computer to which Arch is being installed
     - Options:
         - `-e` encrypts the whole disk (except for the `/boot` partition)
         - `-r SIZE` sets the size of the root partition to `SIZE` GiB (default 32)
@@ -27,7 +28,6 @@ You probably don't want your Arch install to look exactly like mine. The script 
 - mirror list (the `mirrorlist` file) - I use all the U.S. mirrors. If you're not in the U.S., you probably want to do something else. You can generate your own mirrorlist file on the [Arch Linux website](https://www.archlinux.org/mirrorlist/). 
 - timezone (the *set timezone* section of `chroot.sh`)
 - locale (the *set locale* section of `chroot.sh`)
-- hostname (the *configure network* section of `chroot.sh`)
 - keyboard layout (the *save keyboard layout* section of `chroot.sh` and the *Keyboard* section of `first-boot.sh`) - I use the Colemak layout. If you use something else, you'll want to change this or you might have a tough time typing :)
 - microcode (the *set up bootloader* section of `chroot.sh`) - Change `intel-ucode` to `amd-ucode` if you have an AMD processor.
 - installed software (the *NetworkManager*, *SDDM*, *KDE Plasma*, and *Other Packages* sections of `chroot.sh`, and the *AUR Packages* section of `user.sh`)
