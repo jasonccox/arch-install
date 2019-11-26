@@ -58,7 +58,6 @@ if [ ! -z "$ENCDEV" ]; then
     vim +/^GRUB_CMDLINE_LINUX_DEFAULT= -c 'normal! $' -c "normal! iresume=$SWAPDEV" -c wq /etc/default/grub
 else
     vim +/^GRUB_CMDLINE_LINUX_DEFAULT= -c 'normal! $' -c "normal! iresume=UUID=$(lsblk -dno UUID $SWAPDEV)" -c wq /etc/default/grub
-else
 fi
 grub-mkconfig -o /boot/grub/grub.cfg
 
