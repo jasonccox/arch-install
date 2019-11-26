@@ -3,15 +3,16 @@
 # Script run on the new root as the root user.
 
 # variables
-if [ $# -ne 3 ] && [ $# -ne 5 ]; then
-    echo "USAGE: ./chroot.sh BOOT_MOUNT USERNAME HOSTNAME [encrypted_device root_device]"
+if [ $# -ne 4 ] && [ $# -ne 6 ]; then
+    echo "USAGE: ./chroot.sh BOOT_MOUNT SWAP_DEVICE USERNAME HOSTNAME [encrypted_device root_device]"
     exit 1
 fi
 BOOTMNT="$1"
-USER="$2"
-HOSTNAME="$3"
-ENCDEV="$4"
-ROOTDEV="$5"
+SWAPDEV="$2"
+USER="$3"
+HOSTNAME="$4"
+ENCDEV="$5"
+ROOTDEV="$6"
 
 # exit on errors
 set -e
@@ -44,7 +45,7 @@ echo "127.0.1.1        $HOSTNAME.localdomain" >> /etc/hosts
 
 # configure mkinitcpio (encrypted only)
 if [ ! -z "$ENCDEV" ]; then
-    vim +/^HOOKS= -c "normal! ccHOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems fsck)" -c wq /etc/mkinitcpio.conf
+    vim +/^HOOKS= -c "normal! ccHOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems resume fsck)" -c wq /etc/mkinitcpio.conf
     pacman -S --noconfirm lvm2 # required for lvm2 mkinitcpio hook and runs mkinitcpio after install
 fi
 
@@ -54,6 +55,10 @@ pacman -S --noconfirm grub efibootmgr intel-ucode $FSPKGS
 grub-install --target=x86_64-efi --efi-directory="$BOOTMNT" --bootloader-id=GRUB
 if [ ! -z "$ENCDEV" ]; then
     vim +/^GRUB_CMDLINE_LINUX= -c 'normal! $' -c "normal! icryptdevice=UUID=$(lsblk -dno UUID $ENCDEV):cryptlvm root=$ROOTDEV" -c wq /etc/default/grub
+    vim +/^GRUB_CMDLINE_LINUX_DEFAULT= -c 'normal! $' -c "normal! iresume=$SWAPDEV" -c wq /etc/default/grub
+else
+    vim +/^GRUB_CMDLINE_LINUX_DEFAULT= -c 'normal! $' -c "normal! iresume=UUID=$(lsblk -dno UUID $SWAPDEV)" -c wq /etc/default/grub
+else
 fi
 grub-mkconfig -o /boot/grub/grub.cfg
 
