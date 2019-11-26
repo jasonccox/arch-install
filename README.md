@@ -31,3 +31,4 @@ You probably don't want your Arch install to look exactly like mine. The script 
 - keyboard layout (the *save keyboard layout* section of `chroot.sh` and the *Keyboard* section of `first-boot.sh`) - I use the Colemak layout. If you use something else, you'll want to change this or you might have a tough time typing :)
 - microcode (the *set up bootloader* section of `chroot.sh`) - Change `intel-ucode` to `amd-ucode` if you have an AMD processor.
 - installed software (the *NetworkManager*, *SDDM*, *KDE Plasma*, and *Other Packages* sections of `chroot.sh`, and the *AUR Packages* section of `user.sh`)
+- config files (the *Dotfiles* section of `first-boot.sh`) - These are some of my personal configs, and I doubt that you want them.
