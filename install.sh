@@ -155,9 +155,9 @@ cp user.sh /mnt/user.sh
 # run chroot.sh from new root
 echo "chroot-ing to new root"
 if [ "$ENCRYPTED" = "true" ]; then
-    arch-chroot /mnt ./chroot.sh /boot "$USER" "$HOSTNAME" "$DEV"2 /dev/vols/root
+    arch-chroot /mnt ./chroot.sh /boot /dev/vols/swap "$USER" "$HOSTNAME" "$DEV"2 /dev/vols/root
 else
-    arch-chroot /mnt ./chroot.sh /efi "$USER" "$HOSTNAME"
+    arch-chroot /mnt ./chroot.sh /efi "$DEV"3 "$USER" "$HOSTNAME"
 fi
 
 # copy first-boot.sh
