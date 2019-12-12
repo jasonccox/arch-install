@@ -13,6 +13,6 @@ rm -rf yay
 
 # AUR Packages
 echo "Installing additional software from AUR"
-yay -S --noconfirm tutanota-desktop-linux
+yay -S --noconfirm tutanota-desktop-linux tmuxinator
 
 echo "Done with setup as new user"
