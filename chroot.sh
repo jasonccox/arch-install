@@ -44,7 +44,7 @@ echo "::1              localhost" >> /etc/hosts
 echo "127.0.1.1        $HOSTNAME.localdomain" >> /etc/hosts
 
 # configure mkinitcpio (encrypted only)
-if [ ! -z "$ENCDEV" ]; then
+if [ "$ENCDEV" ]; then
     vim +/^HOOKS= -c "normal! ccHOOKS=(base udev autodetect keyboard keymap modconf block encrypt lvm2 filesystems resume fsck)" -c wq /etc/mkinitcpio.conf
     pacman -S --noconfirm lvm2 # required for lvm2 mkinitcpio hook and runs mkinitcpio after install
 else
@@ -56,7 +56,7 @@ fi
 echo "Installing bootloader"
 pacman -S --noconfirm grub efibootmgr intel-ucode $FSPKGS
 grub-install --target=x86_64-efi --efi-directory="$BOOTMNT" --bootloader-id=GRUB
-if [ ! -z "$ENCDEV" ]; then
+if [ "$ENCDEV" ]; then
     vim +/^GRUB_CMDLINE_LINUX= -c 'normal! $' -c "normal! icryptdevice=UUID=$(lsblk -dno UUID $ENCDEV):cryptlvm root=$ROOTDEV" -c wq /etc/default/grub
     vim +/^GRUB_CMDLINE_LINUX_DEFAULT= -c 'normal! $' -c "normal! i resume=$SWAPDEV" -c wq /etc/default/grub
 else

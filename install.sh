@@ -29,7 +29,7 @@ DEV="$1"
 USER="$2"
 HOSTNAME="$3"
 
-while [ ! -z "$4" ]; do
+while [ "$4" ]; do
     case "$4" in
         -e )    ENCRYPTED="true"
                 ;;
