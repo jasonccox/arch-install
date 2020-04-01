@@ -7,7 +7,7 @@ This is a set of scripts that I use to easily install and setup Arch. I highly r
 1. Boot an Arch install USB/CD in UEFI mode.
 2. Connect to the internet.
 3. Install git: `pacman -Sy git`
-4. Clone this repo: `git clone https://gitlab.com/jasonccox/arch-install.git`
+4. Clone this repo: `git clone https://github.com/jasonccox/arch-install.git`
 5. Change directory to the cloned repo: `cd arch-install`
 6. Run the script: `USAGE: ./install.sh DEVICE USERNAME HOSTNAME [options]`
     - `DEVICE` is the device to which Arch should be installed, such as `/dev/sda`. (Use `lsblk` or `fdisk -l` to see available disks.)
