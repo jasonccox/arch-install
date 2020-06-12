@@ -20,7 +20,8 @@ ROOT_SIZE=32
 SWAP_SIZE=8
 
 # read command line arguments into variables
-if [ $# -lt 3 ]; then
+if [ $# -lt 3 ] || [[ "$1" == -* ]] || [[ "$2" == -* ]] || [[ "$3" == -* ]]
+then
     print_usage
     exit 1
 fi
