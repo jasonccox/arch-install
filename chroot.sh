@@ -3,16 +3,17 @@
 # Script run on the new root as the root user.
 
 # variables
-if [ $# -ne 4 ] && [ $# -ne 6 ]; then
-    echo "USAGE: ./chroot.sh BOOT_MOUNT SWAP_DEVICE USERNAME HOSTNAME [encrypted_device root_device]"
+if [ $# -ne 5 ] && [ $# -ne 7 ]; then
+    echo "USAGE: ./chroot.sh BOOT_MOUNT SWAP_DEVICE USERNAME HOSTNAME MICROCODE [encrypted_device root_device]"
     exit 1
 fi
 BOOTMNT="$1"
 SWAPDEV="$2"
 USER="$3"
 HOSTNAME="$4"
-ENCDEV="$5"
-ROOTDEV="$6"
+MICROCODE="$5"
+ENCDEV="$6"
+ROOTDEV="$7"
 
 # exit on errors
 set -e
@@ -54,7 +55,10 @@ fi
 
 # set up bootloader
 echo "Installing bootloader"
-pacman -S --noconfirm grub efibootmgr intel-ucode $FSPKGS
+if [ "$MICROCODE" = "intel" ] || [ "$MICROCODE" = "amd" ]; then
+    ucode="$MICROCODE-ucode"
+fi
+pacman -S --noconfirm grub efibootmgr $ucode $FSPKGS
 grub-install --target=x86_64-efi --efi-directory="$BOOTMNT" --bootloader-id=GRUB
 if [ "$ENCDEV" ]; then
     vim +/^GRUB_CMDLINE_LINUX= -c 'normal! $' -c "normal! icryptdevice=UUID=$(lsblk -dno UUID $ENCDEV):cryptlvm root=$ROOTDEV" -c wq /etc/default/grub

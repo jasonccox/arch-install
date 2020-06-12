@@ -9,9 +9,10 @@
 print_usage () {
     echo "USAGE: ./install.sh DEVICE USERNAME HOSTNAME [options]"
     echo "OPTIONS:"
-    echo "  -e        encrypt the whole disk (except for the /boot partition)"
-    echo "  -r SIZE   set the size of the root partition to SIZE GiB (default 32)"
-    echo "  -s SIZE   set the size of the swap partition to SIZE GiB (default 8)"
+    echo "  -e            encrypt the whole disk (except for the /boot partition)"
+    echo "  -m intel|amd  install Intel or AMD microcode updates"
+    echo "  -r SIZE       set the size of the root partition to SIZE GiB (default 32)"
+    echo "  -s SIZE       set the size of the swap partition to SIZE GiB (default 8)"
 }
 
 # set default variable values
@@ -29,10 +30,18 @@ fi
 DEV="$1"
 USER="$2"
 HOSTNAME="$3"
+MICROCODE=none
 
 while [ "$4" ]; do
     case "$4" in
         -e )    ENCRYPTED="true"
+                ;;
+        -m )    shift
+                if [ -z "$4" ]; then
+                    print_usage
+                    exit 1
+                fi
+                MICROCODE="$4"
                 ;;
         -r )    shift
                 if [ -z "$4" ]; then
@@ -156,9 +165,9 @@ cp user.sh /mnt/user.sh
 # run chroot.sh from new root
 echo "chroot-ing to new root"
 if [ "$ENCRYPTED" = "true" ]; then
-    arch-chroot /mnt ./chroot.sh /boot /dev/vols/swap "$USER" "$HOSTNAME" "$DEV"2 /dev/vols/root
+    arch-chroot /mnt ./chroot.sh /boot /dev/vols/swap "$USER" "$HOSTNAME" "$MICROCODE" "$DEV"2 /dev/vols/root
 else
-    arch-chroot /mnt ./chroot.sh /efi "$DEV"3 "$USER" "$HOSTNAME"
+    arch-chroot /mnt ./chroot.sh /efi "$DEV"3 "$USER" "$HOSTNAME" "$MICROCODE"
 fi
 
 # copy first-boot.sh
