@@ -85,7 +85,7 @@ pacman -S --noconfirm phonon-qt5-vlc plasma-meta plasma-nm sddm-kcm kde-gtk-conf
 # Other Packages
 echo "Installing additional software"
 pacman -Rs --noconfirm vim
-pacman -S --noconfirm base-devel konsole firefox gvim zip unzip openssh hunspell-en_US hunspell-es_any nextcloud-client pulseaudio-alsa pulseaudio-bluetooth dosfstools e2fsprogs nodejs npm tmux man-pages moreutils xclip khal todoman vdirsyncer python-keyring python-dbus kwallet bash-completion pkgfile ripgrep fzf
+pacman -S --noconfirm base-devel konsole firefox gvim zip unzip openssh hunspell-en_US hunspell-es_any nextcloud-client pulseaudio-alsa pulseaudio-bluetooth dosfstools e2fsprogs nodejs npm tmux man-pages moreutils xclip khal todoman vdirsyncer python-keyring python-dbus kwallet bash-completion pkgfile ripgrep fzf gwenview okular dolphin
 
 # enable pkgfile automatic updates
 systemctl enable pkgfile-update.timer
