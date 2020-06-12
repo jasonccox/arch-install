@@ -137,7 +137,7 @@ fi
 
 # adjust mirrors
 echo "Setting desired mirrors"
-cp mirrorlist /etc/pacman.d/mirrorlist
+curl -s 'https://www.archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on' | sed 's/^#Server/Server/' > /etc/pacman.d/mirrorlist
 
 # install base system
 echo "Installing base system"
