@@ -90,6 +90,9 @@ pacman -S --noconfirm base-devel konsole firefox gvim zip unzip openssh hunspell
 # enable pkgfile automatic updates
 systemctl enable pkgfile-update.timer
 
+# enable bluetooth
+systemctl enable bluetooth.service
+
 # set the root password
 echo "Please set the root password"
 passwd
