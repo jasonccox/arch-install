@@ -5,7 +5,7 @@ This is a set of scripts that I use to easily install and setup Arch. I highly r
 ## Usage
 
 1. Boot an Arch install USB/CD in UEFI mode.
-2. Connect to the internet.
+2. Connect to the internet. (Sometimes I have had DNS issues here. Telling `systemd-resolved` to use a different DNS server (e.g. `resolvectl dns LINK 1.1.1.1`) and then restarting it (`systemctl restart systemd-resolved`) usually does the trick.)
 3. Install git: `pacman -Sy git`
 4. Clone this repo: `git clone https://github.com/jasonccox/arch-install.git`
 5. Change directory to the cloned repo: `cd arch-install`
