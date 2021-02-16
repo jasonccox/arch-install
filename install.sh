@@ -7,55 +7,33 @@
 #   - be connected to the internet
 
 print_usage () {
-    echo "USAGE: ./install.sh DEVICE USERNAME HOSTNAME [options]"
+    echo "USAGE: ./install.sh DEVICE HOSTNAME [options]"
     echo "OPTIONS:"
-    echo "  -e            encrypt the whole disk (except for the /boot partition)"
-    echo "  -m intel|amd  install Intel or AMD microcode updates"
-    echo "  -r SIZE       set the size of the root partition to SIZE GiB (default 32)"
-    echo "  -s SIZE       set the size of the swap partition to SIZE GiB (default 8)"
+    echo "  -s SIZE       set the size of the swapfile to SIZE GiB (default $SWAP_SIZE)"
 }
 
-# set default variable values
-ENCRYPTED="false"
-ROOT_SIZE=32
+### SETUP
+
+# Set default variable values.
 SWAP_SIZE=8
 
-# read command line arguments into variables
-if [ $# -lt 3 ] || [[ "$1" == -* ]] || [[ "$2" == -* ]] || [[ "$3" == -* ]]
-then
+# Read command line arguments into variables.
+if [ $# -lt 2 ] || [[ "$1" == -* ]] || [[ "$2" == -* ]]; then
     print_usage
     exit 1
 fi
 
 DEV="$1"
-USER="$2"
-HOSTNAME="$3"
-MICROCODE=none
+HOSTNAME="$2"
 
-while [ "$4" ]; do
-    case "$4" in
-        -e )    ENCRYPTED="true"
-                ;;
-        -m )    shift
-                if [ -z "$4" ]; then
-                    print_usage
-                    exit 1
-                fi
-                MICROCODE="$4"
-                ;;
-        -r )    shift
-                if [ -z "$4" ]; then
-                    print_usage
-                    exit 1
-                fi
-                ROOT_SIZE="$4"
-                ;;
+while [ "$3" ]; do
+    case "$3" in
         -s )    shift
-                if [ -z "$4" ]; then
+                if [ -z "$3" ]; then
                     print_usage
                     exit 1
                 fi
-                SWAP_SIZE="$4"
+                SWAP_SIZE="$3"
                 ;;
         * )     print_usage
                 exit 1
@@ -64,121 +42,116 @@ while [ "$4" ]; do
     shift
 done
 
-# make sure you're booted in UEFI mode
+# Make sure you're booted in UEFI mode.
 echo "Verifying UEFI mode"
 if ! ls /sys/firmware/efi/efivars; then
     echo "You are not booted in UEFI mode. Aborting."
     exit 2
 fi
 
-# verify Internet connection
+# Verify Internet connection.
 echo "Verifying Internet connection"
 if ! ping -c 5 archlinux.org; then
     echo "You are not connected to the Internet. Aborting."
     exit 3
 fi
 
-# exit on errors
+# Exit on errors.
 set -e
 
-# update system clock
+### UPDATE SYSTEM CLOCK
 echo "Updating system clock"
 timedatectl set-ntp true
 
-# create partitions
+### SETUP DISKS/PARTITIONS
+
+# Create partitions.
 echo "Creating partitions on $DEV"
+
+# Format disk with GPT table.
 parted "$DEV" mklabel gpt
-parted "$DEV" mkpart primary fat32 1MiB 513MiB # /efi or /boot
-parted "$DEV" set 1 esp on # sets partition 1 as EFI partition
-if [ "$ENCRYPTED" = "true" ]; then
-    parted "$DEV" mkpart primary ext4 513MiB 100% # encrypted with LUKS
 
-    # encrypt second partition
-    echo "Encrypting $DEV"2
-    cryptsetup luksFormat "$DEV"2
+# Create unencrypted partition for /boot.
+parted "$DEV" mkpart primary fat32 1MiB 513MiB
+parted "$DEV" set 1 esp on # set it as EFI partition
 
-    # open encrypted partition
-    echo "Password successfully set"
-    echo "Please enter the drive encryption password to open it"
-    cryptsetup open "$DEV"2 cryptlvm
+# Create encrypted partition for everything else.
+parted "$DEV" mkpart primary btrfs 513MiB 100%
 
-    # create LVM volumes on encrypted partition
-    pvcreate /dev/mapper/cryptlvm
-    vgcreate vols /dev/mapper/cryptlvm
-    lvcreate -L "$ROOT_SIZE"g vols -n root
-    lvcreate -L "$SWAP_SIZE"g vols -n swap
-    lvcreate -l 100%FREE vols -n home
-else
-    let ROOT_END=513+1024*"$ROOT_SIZE"
-    let SWAP_END="$ROOT_END"+1024*"$SWAP_SIZE"
-    parted "$DEV" mkpart primary ext4 513MiB "$ROOT_END"MiB # /
-    parted "$DEV" mkpart primary ext4 "$ROOT_END"MiB "$SWAP_END"MiB # swap
-    parted "$DEV" mkpart primary ext4 "$SWAP_END"MiB 100% # /home
-fi
+# Encrypt second partition.
+echo "Encrypting $DEV"2
+cryptsetup luksFormat "$DEV"2
+echo "Password successfully set"
 
-# format partitions
+# Open encrypted partition.
+ENC_NAME=cryptroot
+echo "Please enter the drive encryption password to open it"
+cryptsetup open "$DEV"2 $ENC_NAME
+
+# Format partitions.
 echo "Formatting partitions"
-mkfs.fat -F32 "$DEV"1
-if [ "$ENCRYPTED" = "true" ]; then
-    mkfs.ext4 /dev/vols/root
-    mkswap /dev/vols/swap
-    mkfs.ext4 /dev/vols/home
-else
-    mkfs.ext4 "$DEV"2 # /
-    mkswap "$DEV"3
-    mkfs.ext4 "$DEV"4 # /home
-fi
 
-# mount partitions
+# Format first partition as fat32.
+mkfs.fat -F32 -n EFI "$DEV"1
+
+# Format second partition as btrfs.
+mkfs.btrfs -L ROOT /dev/mapper/$ENC_NAME
+
+# Create various btrfs subvolumes.
+mount /dev/mapper/$ENC_NAME /mnt
+btrfs subvolume create /mnt/@root # /
+btrfs subvolume create /mnt/@home # /home
+btrfs subvolume create /mnt/@pkg # /var/cache/pacman/pkg
+btrfs subvolume create /mnt/@snapshots # btrfs snapshots
+btrfs subvolume create /mnt/@swap # for a swapfile
+btrfs subvolume create /mnt/@btrfs # btrfs root
+umount /mnt
+
+# Mount partitions.
 echo "Mounting partitions"
-if [ "$ENCRYPTED" = "true" ]; then
-    mount /dev/vols/root /mnt
-    mkdir /mnt/boot /mnt/home
-    mount "$DEV"1 /mnt/boot
-    mount /dev/vols/home /mnt/home
-    swapon /dev/vols/swap
-else
-    mount "$DEV"2 /mnt
-    mkdir /mnt/efi /mnt/home
-    mount "$DEV"1 /mnt/efi
-    mount "$DEV"4 /mnt/home
-    swapon "$DEV"3
-fi
 
-# adjust mirrors
+# First mount the root subvolume.
+mount -o subvol=@root /dev/mapper/$ENC_NAME /mnt
+
+# Make mount dirs for everything else.
+mkdir -p /mnt/{boot,home,var/cache/pacman/pkg,swap,.snapshots,btrfs}
+
+# Mount the rest. See `man 8 mount` and `man 5 btrfs` for details about flags.
+FLAGS="discard=async,compress=zstd,noatime"
+mount -o "$FLAGS,subvol=@home" /dev/mapper/$ENC_NAME /mnt/home
+mount -o "$FLAGS,subvol=@pkg" /dev/mapper/$ENC_NAME /mnt/var/cache/pacman/pkg
+mount -o "$FLAGS,subvol=@snapshots" /dev/mapper/$ENC_NAME /mnt/.snapshots
+mount -o subvol=@swap /dev/mapper/$ENC_NAME /mnt/swap
+mount -o "$FLAGS,subvol=@btrfs" /dev/mapper/$ENC_NAME /mnt/btrfs
+mount "$DEV"1 /mnt/boot
+
+### INSTALL BASE SYSTEM
+
+# TODO: figure out new way to get mirrors without redirect - use reflector?
+# Adjust mirrors.
 echo "Setting desired mirrors"
-curl -s 'https://www.archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on' | sed 's/^#Server/Server/' > /etc/pacman.d/mirrorlist
+curl -s -L 'https://www.archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on' | sed 's/^#Server/Server/' > /etc/pacman.d/mirrorlist
 
-# install base system
+# Install base system. Add btrfs-progs because root is on btrfs.
 echo "Installing base system"
-pacstrap /mnt base linux linux-firmware
+pacstrap /mnt base linux linux-firmware btrfs-progs
 
-# generate fstab
+### GENERATE FSTAB
 echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# copy chroot and user scripts
+### CHROOT
+
+# Copy chroot and user scripts to be run from new root.
 echo "Copying scripts to run on new root"
-cp chroot.sh /mnt/chroot.sh
-cp user.sh /mnt/user.sh
+mkdir /mnt/arch-install
+cp chroot.sh first-boot.sh user.sh packages.list aur-packages.list /mnt/arch-install
 
-# run chroot.sh from new root
+# Run chroot.sh from new root.
 echo "chroot-ing to new root"
-if [ "$ENCRYPTED" = "true" ]; then
-    arch-chroot /mnt ./chroot.sh /boot /dev/vols/swap "$USER" "$HOSTNAME" "$MICROCODE" "$DEV"2 /dev/vols/root
-else
-    arch-chroot /mnt ./chroot.sh /efi "$DEV"3 "$USER" "$HOSTNAME" "$MICROCODE"
-fi
+arch-chroot /mnt /arch-install/chroot.sh /boot /swap "$SWAP_SIZE" "$HOSTNAME" "$DEV"2 "$ENC_NAME"
 
-# copy first-boot.sh
-echo "Copying first-boot.sh to $USER's home directory"
-cp first-boot.sh /mnt/home/$USER/first-boot.sh
-
-# clean up
-echo "Cleaning up"
-rm /mnt/chroot.sh /mnt/user.sh
-
-# reboot
-echo "All done! Your system will now reboot. After rebooting, run the first-boot.sh script in $USER's home directory."
+### REBOOT
+echo "Your system will now reboot. After rebooting, log in as root and run the first-boot.sh script found in /arch-install/"
 read -p "Press enter to continue..."
 reboot

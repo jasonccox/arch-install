@@ -1,0 +1,4 @@
+# List of AUR packages to install. Lines beginning with '#' are ignored.
+
+bitwarden
+tutanota-desktop-bin

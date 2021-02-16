@@ -1,0 +1,73 @@
+# List of packages to install. Lines beginning with '#' are ignored.
+
+# Essentials
+sudo
+git
+vim
+alacritty
+firefox
+nextcloud-client
+
+# Shell tools
+tmux
+ripgrep
+fzf
+bash-completion
+
+# Dev packages needed to build from AUR
+base-devel
+
+# Man pages
+man-db
+man-pages
+texinfo
+
+# Bluetooth
+bluez
+bluez-utils
+blueman
+
+# PIM
+vdirsyncer
+todoman
+khal
+
+### SWAY
+
+# Basics
+sway
+swayidle
+swaylock
+xorg-xwayland
+
+# Clipboard tool similar to xclip
+wl-clipboard
+
+# Notification daemon
+mako
+
+# Menu/launcher
+wofi
+
+# Screenshot tools
+grim
+slurp
+
+# Monitor battery
+acpi
+
+# Control volume, mic, etc.
+pulsemixer
+
+# Control screen brightness
+brightnessctl
+
+# My preferred fonts
+ttf-fira-mono
+ttf-fira-sans
+
+# Pacman will ask which ttf-font package you want - here's one.
+gnu-free-fonts
+
+# Pacman will ask which OpenGL driver you want - here's one.
+mesa
