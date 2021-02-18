@@ -7,7 +7,7 @@ echo "Setting up dotfiles"
 git clone https://github.com/jasonccox/dotfiles.git # clone with https since ssh keys aren't on system yet
 cd dotfiles
 git remote set-url origin git@github.com:jasonccox/dotfiles.git # set to ssh for later use
-./setup.sh shell vim git tmux pim ssh sway alacritty
+./setup.sh shell vim git tmux ssh sway alacritty
 
 ### INSTALL AUR PACKAGES
 

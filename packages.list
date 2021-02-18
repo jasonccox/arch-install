@@ -27,10 +27,18 @@ bluez
 bluez-utils
 blueman
 
+inetutils
+openssh
+
+# A nifty program to determine what package to install to get an executable
+pkgfile
+
 # PIM
 vdirsyncer
 todoman
 khal
+gnome-keyring
+python-keyring
 
 ### SWAY
 
@@ -38,7 +46,11 @@ khal
 sway
 swayidle
 swaylock
+
+# Wayland integration
 xorg-xwayland
+qt5-wayland
+qt6-wayland
 
 # Clipboard tool similar to xclip
 wl-clipboard

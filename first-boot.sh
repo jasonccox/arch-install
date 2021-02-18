@@ -87,6 +87,10 @@ pacman -S --noconfirm --needed $(cat /arch-install/packages.list | grep -v '^#')
 # Enable bluetooth.
 systemctl enable bluetooth.service
 
+# Enable service to auto-update pkgfile database, and do the first update.
+systemctl enable pkgfile-update.timer
+pkgfile --update
+
 ### SETUP NEW USER
 
 # Create a new user with sudo privileges.
