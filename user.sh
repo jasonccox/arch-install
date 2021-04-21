@@ -2,6 +2,10 @@
 
 # Setup to be run on new root as new user.
 
+### FISH SHELL
+echo "Setting default shell to fish"
+chsh -s "$(which fish)"
+
 ### SETUP DOTFILES
 echo "Setting up dotfiles"
 git clone https://github.com/jasonccox/dotfiles.git # clone with https since ssh keys aren't on system yet
