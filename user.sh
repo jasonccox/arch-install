@@ -6,13 +6,6 @@
 echo "Setting default shell to fish"
 chsh -s "$(which fish)"
 
-### SETUP DOTFILES
-echo "Setting up dotfiles"
-git clone https://github.com/jasonccox/dotfiles.git # clone with https since ssh keys aren't on system yet
-cd dotfiles
-git remote set-url origin git@github.com:jasonccox/dotfiles.git # set to ssh for later use
-./setup.sh shell vim git tmux ssh sway alacritty
-
 ### INSTALL AUR PACKAGES
 
 # Yay (AUR helper)
@@ -27,5 +20,13 @@ rm -rf yay
 # AUR Packages
 echo "Installing additional software from AUR"
 yay -S --noconfirm $(cat /arch-install/aur-packages.list | grep -v '^#')
+
+### SETUP DOTFILES
+echo "Setting up dotfiles"
+cd ~
+git clone https://github.com/jasonccox/dotfiles.git # clone with https since ssh keys aren't on system yet
+cd dotfiles
+git remote set-url origin git@github.com:jasonccox/dotfiles.git # set to ssh for later use
+./setup.sh shell vim git tmux ssh sway alacritty kmonad
 
 echo "Done with setup as new user"
