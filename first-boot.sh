@@ -61,10 +61,10 @@ sed -i '/^HOOKS=/s/)/ grub-btrfs-overlayfs)/' /etc/mkinitcpio.conf
 mkinitcpio -P
 
 # Add pacman hook to copy /boot to /.bootbackup since it's on a separate
-# partition. (See
+# partition. Name it so that it runs before the snapper pre hook. (See
 # https://wiki.archlinux.org/index.php/Snapper#Backup_non-Btrfs_boot_partition_on_pacman_transactions)
 mkdir -p /etc/pacman.d/hooks
-cat > /etc/pacman.d/hooks/50-bootbackup.hook <<< '
+cat > /etc/pacman.d/hooks/00_bootbackup.hook <<< '
 [Trigger]
 Operation = Upgrade
 Operation = Install
