@@ -91,6 +91,12 @@ systemctl enable bluetooth.service
 systemctl enable pkgfile-update.timer
 pkgfile --update
 
+# Unlock gnome-keyring on login.
+cat >> /etc/pam.d/login <<< '
+auth       optional     pam_gnome_keyring.so
+session    optional     pam_gnome_keyring.so auto_start
+'
+
 ### SETUP NEW USER
 
 # Create a new user with sudo privileges.
