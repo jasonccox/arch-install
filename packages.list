@@ -14,6 +14,9 @@ tmux
 ripgrep
 fzf
 bash-completion
+jq
+unzip
+tree
 
 # Dev packages needed to build from AUR
 base-devel
@@ -26,20 +29,29 @@ texinfo
 # Bluetooth
 bluez
 bluez-utils
-blueman
 
+# Networking
 inetutils
 openssh
+wireguard-tools
 
 # A nifty program to determine what package to install to get an executable
 pkgfile
 
 # PIM
+aerc
+w3m
+dante
+newsboat
 vdirsyncer
 todoman
 khal
 gnome-keyring
 python-keyring
+
+# Dev tools
+docker
+docker-compose
 
 ### SWAY
 
